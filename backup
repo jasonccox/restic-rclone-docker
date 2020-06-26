@@ -1,0 +1,35 @@
+#!/bin/sh
+
+# backup - Script run by crond to perform backups.
+
+log() {
+    echo "[$(date -Iseconds)] === $1 ==="
+}
+
+set -e # exit on errors
+
+backup_dir="$1"
+
+if [ -z "$backup_dir" ]; then
+    echo "USAGE: ./backup.sh <backup dir>"
+    exit 1
+fi
+
+log "Starting backup"
+
+if ! restic snapshots &> /dev/null; then
+    log "Initializing repository"
+    restic init || (log "Initializing repository failed"; exit 1)
+fi
+
+log "Backing up $backup_dir"
+restic --verbose backup "$backup_dir" || \
+    (log "Backing up $backup_dir failed"; exit 1)
+
+
+log "Removing old snapshots"
+restic forget --prune --keep-daily 7 --keep-weekly 5 --keep-monthly 12 || \
+    (log "Removing old snapshots failed"; exit 1)
+
+
+log "Backup complete"

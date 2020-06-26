@@ -1,0 +1,11 @@
+#!/bin/sh
+
+# runner - Default command for Docker container
+
+set -e # exit on error
+
+echo "$CRON backup /data &> /var/log/backup" > /var/spool/cron/crontabs/root
+crond -L /var/log/cron
+
+touch /var/log/backup
+tail -f /var/log/backup
