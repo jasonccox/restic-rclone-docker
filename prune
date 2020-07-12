@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# prune - Script run by crond to prune repository.
+
+set -e # exit on errors
+
+source /usr/lib/log.sh
+
+log "Starting prune"
+
+restic prune --verbose || (log "Pruning repository failed"; exit 1)
+
+log "Prune complete"

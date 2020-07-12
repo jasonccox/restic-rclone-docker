@@ -15,8 +15,12 @@ RUN wget -O - $RESTIC_URL | bzip2 -d -c > /bin/restic && \
 # copy needed scripts
 COPY ./backup /bin/backup
 COPY ./runner /bin/runner
+COPY ./prune /bin/prune
+COPY ./log.sh /usr/lib/log.sh
 
-ENV CRON '0 0 * * *'
+ENV CRON='0 0 * * *' \
+    FORGET_ARGS='--keep-daily 7 --keep-weekly 5 --keep-monthly 12' \
+    PRUNE_CRON='0 3 1 * *'
 
 HEALTHCHECK --retries=1 CMD ps a | grep -v grep | grep crond || exit 1
 

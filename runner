@@ -4,8 +4,12 @@
 
 set -e # exit on error
 
-echo "$CRON backup /data &> /var/log/backup" > /var/spool/cron/crontabs/root
+echo "$CRON backup /data 1>&2" > /var/spool/cron/crontabs/root
+
+if [ -n "$PRUNE_CRON" ]; then
+    echo "$PRUNE_CRON prune 1>&2" >> /var/spool/cron/crontabs/root
+fi
+
 crond -L /var/log/cron
 
-touch /var/log/backup
-tail -f /var/log/backup
+tail -f /var/log/cron

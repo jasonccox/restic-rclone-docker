@@ -19,7 +19,9 @@ You must provide the following environment variables (see the [restic documentat
 - `RESTIC_PASSWORD` or `RESTIC_PASSWORD_FILE`
 
 The following environment variables are also useful but not required:
-- `CRON` - a crontab string indicating when backups should run (e.g. `0 0 * * *`)
+- `CRON` - a crontab string indicating when backups should run (default `0 0 * * *`)
+- `FORGET_ARGS` - arguments to be passed to `restic forget` each time a backup is run; set to `""` to indicate that `restic forget` should not be run (default `--keep-daily 7 --keep-weekly 5 --keep-monthly 12`)
+- `PRUNE_CRON` - a crontab string indicating when the repository should be pruned; set to `""` to indicate that the repository should never be pruned (default `0 3 1 * *`)
 - `TZ` - the timezone the container should use (e.g. `America/Denver`)
 
 I also recommend that you manually set the hostname of the container (using `--hostname` or `hostname:` in Docker compose) so that it stays consistent, since restic does store that information.

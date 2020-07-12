@@ -2,11 +2,9 @@
 
 # backup - Script run by crond to perform backups.
 
-log() {
-    echo "[$(date -Iseconds)] === $1 ==="
-}
-
 set -e # exit on errors
+
+source /usr/lib/log.sh
 
 backup_dir="$1"
 
@@ -19,17 +17,17 @@ log "Starting backup"
 
 if ! restic snapshots &> /dev/null; then
     log "Initializing repository"
-    restic init || (log "Initializing repository failed"; exit 1)
+    restic init --verbose || (log "Initializing repository failed"; exit 1)
 fi
 
 log "Backing up $backup_dir"
 restic --verbose backup "$backup_dir" || \
     (log "Backing up $backup_dir failed"; exit 1)
 
-
-log "Removing old snapshots"
-restic forget --prune --keep-daily 7 --keep-weekly 5 --keep-monthly 12 || \
-    (log "Removing old snapshots failed"; exit 1)
-
+if [ -n "$FORGET_ARGS" ]; then
+    log "Forgetting old snapshots"
+    restic forget --verbose $FORGET_ARGS || \
+        (log "Forgetting old snapshots failed"; exit 1)
+fi
 
 log "Backup complete"
